@@ -68,9 +68,9 @@ bitmap_pixel_rgb_t pixelToRGB(bitmap_pixel_t pixel, bitmap_color_space_t colorSp
 
 		if (pixel.c1 == 0)
 		{
-        	newPixel.r = pixel.c2;
-        	newPixel.g = pixel.c2;
-        	newPixel.b = pixel.c2;
+			newPixel.r = pixel.c2;
+			newPixel.g = pixel.c2;
+			newPixel.b = pixel.c2;
 
         	break;
 		}
@@ -78,9 +78,9 @@ bitmap_pixel_rgb_t pixelToRGB(bitmap_pixel_t pixel, bitmap_color_space_t colorSp
 		bitmap_component_t region = pixel.c0 / 43;
 		bitmap_component_t remainder = (pixel.c0 - (region * 43)) * 6;
 
-        bitmap_component_t p = (pixel.c2 * (255 - pixel.c1)) >> 8;
-        bitmap_component_t q = (pixel.c2 * (255 - ((pixel.c1 * remainder) >> 8))) >> 8;
-        bitmap_component_t t = (pixel.c2 * (255 - ((pixel.c1 * (255 - remainder)) >> 8))) >> 8;
+		bitmap_component_t p = (pixel.c2 * (255 - pixel.c1)) >> 8;
+		bitmap_component_t q = (pixel.c2 * (255 - ((pixel.c1 * remainder) >> 8))) >> 8;
+		bitmap_component_t t = (pixel.c2 * (255 - ((pixel.c1 * (255 - remainder)) >> 8))) >> 8;
 
 		switch (region)
 		{
@@ -1143,6 +1143,37 @@ bitmap_error_t bitmapWriteI32(FILE* file, int32_t value)
 	return bitmapWriteBytes(file, (uint8_t*)&value, sizeof(int32_t));
 }
 
+//Internal pixel row writing function (BITMAP_COLOR_DEPTH_24).
+//
+//Errors:
+//- BITMAP_ERROR_IO                   An IO error has occurred.
+//
+//The file will not be closed by this function.
+bitmap_error_t bitmapWriteRowColorDepth_24(bitmap_t* bitmap, const bitmap_pixel_t* rowData)
+{
+	//Get the width:
+	uint32_t widthPx = bitmap->parameters.widthPx;
+
+	//Get the color space:
+	bitmap_color_space_t colorSpace = bitmap->parameters.colorSpace;
+
+	//Status var:
+	bitmap_error_t success;
+
+	for (int colPx = 0; colPx < widthPx; colPx++)
+	{
+		bitmap_pixel_rgb_t currPixel = pixelToRGB(rowData[colPx], colorSpace);
+		bitmap_component_t pixelData[3] = { currPixel.b, currPixel.g, currPixel.r };
+
+		if ((success = bitmapWriteBytes(bitmap->file, (uint8_t*)pixelData, sizeof(pixelData))) != BITMAP_ERROR_SUCCESS)
+		{
+			return success;
+		}
+	}
+
+	return BITMAP_ERROR_SUCCESS;
+}
+
 //Internal pixel row writing function (BITMAP_COLOR_DEPTH_32).
 //
 //Errors:
@@ -1163,14 +1194,9 @@ bitmap_error_t bitmapWriteRowColorDepth_32(bitmap_t* bitmap, const bitmap_pixel_
 	for (int colPx = 0; colPx < widthPx; colPx++)
 	{
 		bitmap_pixel_rgb_t currPixel = pixelToRGB(rowData[colPx], colorSpace);
-		bitmap_pixel_rgb_t newPixel;
+		bitmap_component_t pixelData[4] = { currPixel.c3, currPixel.b, currPixel.g, currPixel.r };
 
-		newPixel.c3 = currPixel.c3;
-		newPixel.r = currPixel.b;
-		newPixel.g = currPixel.g;
-		newPixel.b = currPixel.r;
-
-		if ((success = bitmapWriteBytes(bitmap->file, (uint8_t*)&newPixel, sizeof(bitmap_pixel_rgb_t))) != BITMAP_ERROR_SUCCESS)
+		if ((success = bitmapWriteBytes(bitmap->file, (uint8_t*)pixelData, sizeof(pixelData))) != BITMAP_ERROR_SUCCESS)
 		{
 			return success;
 		}
@@ -1211,6 +1237,13 @@ bitmap_error_t bitmapWritePixelsCompression_None(bitmap_t* bitmap, const bitmap_
 		//Write it, depending on the color depth:
 		switch (bitmap->parameters.colorDepth)
 		{
+		case BITMAP_COLOR_DEPTH_24:
+
+			bitmapWriteRowColorDepth_24(bitmap, rowData);
+			success = BITMAP_ERROR_SUCCESS;
+
+			break;
+
 		case BITMAP_COLOR_DEPTH_32:
 
 			bitmapWriteRowColorDepth_32(bitmap, rowData);

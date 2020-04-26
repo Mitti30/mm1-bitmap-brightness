@@ -17,7 +17,7 @@ typedef int bitmap_logging_t;
 #define BITMAP_LOGGING_DEFAULT 1
 #define BITMAP_LOGGING_VERBOSE 2
 
-#define BITMAP_LOGGING BITMAP_LOGGING_VERBOSE
+#define BITMAP_LOGGING BITMAP_LOGGING_NONE
 
 //The kind of DIB header that is used for the bitmap:
 typedef uint16_t bitmap_dib_header_format_t;
@@ -122,12 +122,12 @@ typedef struct _bitmap_parameters_t_
 //Bitmap errors:
 typedef int bitmap_error_t;
 
-#define BITMAP_ERROR_SUCCESS             0
-#define BITMAP_ERROR_INVALID_PATH        1
+#define BITMAP_ERROR_SUCCESS 0
+#define BITMAP_ERROR_INVALID_PATH 1
 #define BITMAP_ERROR_INVALID_FILE_FORMAT 2
-#define BITMAP_ERROR_IO                  3
-#define BITMAP_ERROR_MEMORY              4
-#define BITMAP_ERROR_FILE_EXISTS         5
+#define BITMAP_ERROR_IO 3
+#define BITMAP_ERROR_MEMORY 4
+#define BITMAP_ERROR_FILE_EXISTS 5
 
 /**********************************************************************************************************************************************************************
 	Read an existing bitmap file.
@@ -140,7 +140,7 @@ typedef int bitmap_error_t;
 	- BITMAP_ERROR_MEMORY               Insufficient memory.
 **********************************************************************************************************************************************************************/
 
-bitmap_error_t bitmapReadPixels(const char* filePath, bitmap_pixel_t** pixels, int* widthPx, int* heightPx, bitmap_color_space_t colorSpace);
+bitmap_error_t bitmapReadPixels(const char *filePath, bitmap_pixel_t **pixels, int *widthPx, int *heightPx, bitmap_color_space_t colorSpace);
 
 /**********************************************************************************************************************************************************************
 	Write a bitmap file. Use the provided bitmap parameters.
@@ -153,6 +153,6 @@ bitmap_error_t bitmapReadPixels(const char* filePath, bitmap_pixel_t** pixels, i
 	- BITMAP_ERROR_FILE_EXISTS          The file at the given path already exists (and overwriteExisting is false).
 **********************************************************************************************************************************************************************/
 
-bitmap_error_t bitmapWritePixels(const char* filePath, bitmap_bool_t overwriteExisting, bitmap_parameters_t* parameters, const bitmap_pixel_t* pixels);
+bitmap_error_t bitmapWritePixels(const char *filePath, bitmap_bool_t overwriteExisting, bitmap_parameters_t *parameters, const bitmap_pixel_t *pixels);
 
 #endif

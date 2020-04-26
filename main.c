@@ -1,31 +1,81 @@
 #include <assert.h>
 #include <stdlib.h>
-
+#include <math.h>
+#include <stdio.h>
+#include <string.h>
 #include "bitmap.h"
 
-int main(void)
+double min(double a, double b)
 {
-	//Read bitmap pixels, convert to HSV:
-	bitmap_pixel_hsv_t* pixels;
-	int widthPx, heightPx;
+	return (a < b) ? a : b;
+}
 
-	bitmap_error_t error = bitmapReadPixels("test.bmp", (bitmap_pixel_t**)&pixels, &widthPx, &heightPx, BITMAP_COLOR_SPACE_HSV);
+double max(double a, double b)
+{
+	return (a > b) ? a : b;
+}
+
+void manipulate(bitmap_pixel_hsv_t *pixels, int count, int level)
+{
+
+	for (int i = 0; i < count; i++)
+	{
+		bitmap_pixel_hsv_t *pixel = &pixels[i];
+		pixel->v = max(min(pixel->v + (255 / 100 * level), 255), 0);
+		printf("%i \n", pixel->v);
+	}
+}
+
+int main(int argc, char *argv[])
+{
+	if (argc < 4)
+	{
+		printf("Not enough Arguments!");
+		return 1;
+	}
+	if (argc > 4)
+	{
+		printf("Too much Arguments!");
+		return 1;
+	}
+
+	//TODO: Abbruchbedingungen für falsche Commandline Parameter
+
+	//Read bitmap pixels:
+	bitmap_error_t error;
+	bitmap_pixel_hsv_t *pixels;
+	int width, height;
+
+	char *end;
+	int level = (int)strtol(argv[3], end, 10);
+
+	char *outputName = (char *)malloc(strlen(argv[1]) + 5 * sizeof(char));
+
+	strncpy(outputName, argv[1], strlen(argv[1]) - 4);
+	strcat(outputName, "_b");
+	strcat(outputName, argv[3]);
+	strcat(outputName, ".bmp");
+
+	error = bitmapReadPixels((char *)argv[1], (bitmap_pixel_t **)&pixels, &width, &height, BITMAP_COLOR_SPACE_HSV);
+
+	assert(error == BITMAP_ERROR_SUCCESS); //!If False displays error message and aborts program
+	printf("Read Bitmap successfully!");
+	//Manipulate bitmap pixels:
+	manipulate(pixels, width * height, level);
+
+	//Write bitmap pixels:
+	bitmap_parameters_t parameters = {
+		.bottomUp = BITMAP_BOOL_TRUE,
+		.widthPx = width,
+		.heightPx = height,
+		.colorDepth = BITMAP_COLOR_DEPTH_24,
+		.compression = BITMAP_COMPRESSION_NONE,
+		.dibHeaderFormat = BITMAP_DIB_HEADER_INFO,
+		.colorSpace = BITMAP_COLOR_SPACE_HSV,
+	};
+	error = bitmapWritePixels(outputName, BITMAP_BOOL_TRUE, &parameters, (bitmap_pixel_t *)pixels);
 	assert(error == BITMAP_ERROR_SUCCESS);
-
-	//Write bitmap pixels, assume HSV in source:
-	bitmap_parameters_t params;
-
-	params.bottomUp = BITMAP_BOOL_TRUE;
-	params.widthPx = widthPx;
-	params.heightPx = heightPx;
-	params.colorDepth = BITMAP_COLOR_DEPTH_32;
-	params.compression = BITMAP_COMPRESSION_NONE;
-	params.dibHeaderFormat = BITMAP_DIB_HEADER_INFO;
-	params.colorSpace = BITMAP_COLOR_SPACE_HSV;
-
-	error = bitmapWritePixels("test.mod.bmp", BITMAP_BOOL_TRUE, &params, (bitmap_pixel_t*)pixels);
-	assert(error == BITMAP_ERROR_SUCCESS);
-
+	printf("Bitmap has been written!");
 	//Free the pixel array:
 	free(pixels);
 
