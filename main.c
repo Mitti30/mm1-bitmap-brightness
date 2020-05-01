@@ -39,15 +39,18 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	//TODO: Abbruchbedingungen für falsche Commandline Parameter
+	char *end;
+	int level = (int)strtol(argv[3], end, 10);
+	if (level < -100 || level > 100)
+	{
+		printf("Level value is not between +100 and -100!");
+		return 1;
+	}
 
 	//Read bitmap pixels:
 	bitmap_error_t error;
 	bitmap_pixel_hsv_t *pixels;
 	int width, height;
-
-	char *end;
-	int level = (int)strtol(argv[3], end, 10);
 
 	char *outputName = (char *)malloc(strlen(argv[1]) + 5 * sizeof(char));
 
