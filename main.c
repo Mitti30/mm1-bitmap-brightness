@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 	assert(error == BITMAP_ERROR_SUCCESS); //!If False displays error message and aborts program
 	printf("Read Bitmap successfully!");
 
-	error = bitmapReadPixels("serrano.bmp", (bitmap_pixel_t **)&pixels_2, &width_2, &height_2, BITMAP_COLOR_SPACE_RGB);
+	error = bitmapReadPixels("LAND2.BMP", (bitmap_pixel_t **)&pixels_2, &width_2, &height_2, BITMAP_COLOR_SPACE_RGB);
 	assert(error == BITMAP_ERROR_SUCCESS); //!If False displays error message and aborts program
 	printf("Read Bitmap successfully!");
 
@@ -84,8 +84,8 @@ int main(int argc, char *argv[])
 	{
 		for (int i = 0; i < width_output; i++)
 		{
-			bitmap_pixel_rgb_t *pixel_1 = &pixels_1[i + (width_output * e)];
-			bitmap_pixel_rgb_t *pixel_2 = &pixels_2[i + (width_output * e)];
+			bitmap_pixel_rgb_t *pixel_1 = &pixels_1[i + (width_1 * e)];
+			bitmap_pixel_rgb_t *pixel_2 = &pixels_2[i + (width_2 * e)];
 			bitmap_pixel_rgb_t *pixel_output = &pixels_output[i + (width_output * e)];
 
 			pixel_output->r = round(alpha * pixel_1->r + (1 - alpha) * pixel_2->r);
