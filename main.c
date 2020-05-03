@@ -15,19 +15,8 @@ double max(double a, double b)
 	return (a > b) ? a : b;
 }
 
-void manipulate(bitmap_pixel_hsv_t *pixels, int count, int level)
-{
-
-	for (int i = 0; i < count; i++)
-	{
-		bitmap_pixel_hsv_t *pixel = &pixels[i];
-		pixel->v = max(min(pixel->v + (255 / 100 * level), 255), 0);
-		printf("%i \n", pixel->v);
-	}
-}
-
 int main(int argc, char *argv[])
-{ /*
+{
 	if (argc < 4)
 	{
 		printf("Not enough Arguments!");
@@ -37,17 +26,16 @@ int main(int argc, char *argv[])
 	{
 		printf("Too much Arguments!");
 		return 1;
-	}*/
+	}
 
 	char *end;
-	int level = (int)strtol(argv[3], end, 10);
-
-	float alpha = 0;
-	/*	if (level < -100 || level > 100)
+	double alpha = strtod(argv[3], &end);
+	;
+	if (alpha < 0 || alpha > 1)
 	{
-		printf("Level value is not between +100 and -100!");
+		printf("Alphablending factor is not between 0 and 1!");
 		return 1;
-	}*/
+	}
 
 	//Read bitmap pixels:
 	bitmap_error_t error;
@@ -57,24 +45,16 @@ int main(int argc, char *argv[])
 	int width_1, height_1;
 	int width_2, height_2;
 	int width_output, height_output;
-	/*
-	char *outputName = (char *)malloc(strlen(argv[1]) + 5 * sizeof(char));
 
-	strncpy(outputName, argv[1], strlen(argv[1]) - 4);
-	strcat(outputName, "_b");
-	strcat(outputName, argv[3]);
-	strcat(outputName, ".bmp");*/
-
-	error = bitmapReadPixels("sails.bmp", (bitmap_pixel_t **)&pixels_1, &width_1, &height_1, BITMAP_COLOR_SPACE_RGB);
+	error = bitmapReadPixels(argv[1], (bitmap_pixel_t **)&pixels_1, &width_1, &height_1, BITMAP_COLOR_SPACE_RGB);
 	assert(error == BITMAP_ERROR_SUCCESS); //!If False displays error message and aborts program
 	printf("Read Bitmap successfully!");
 
-	error = bitmapReadPixels("LAND2.BMP", (bitmap_pixel_t **)&pixels_2, &width_2, &height_2, BITMAP_COLOR_SPACE_RGB);
+	error = bitmapReadPixels(argv[2], (bitmap_pixel_t **)&pixels_2, &width_2, &height_2, BITMAP_COLOR_SPACE_RGB);
 	assert(error == BITMAP_ERROR_SUCCESS); //!If False displays error message and aborts program
 	printf("Read Bitmap successfully!");
 
 	width_output = min(width_1, width_2);
-	printf("Width: %i | %i | %i", width_1, width_2, width_output);
 	height_output = min(height_1, height_2);
 	pixels_output = (bitmap_pixel_rgb_t *)malloc(height_output * width_output * sizeof(bitmap_pixel_rgb_t));
 
