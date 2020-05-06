@@ -17,6 +17,7 @@ double max(double a, double b)
 
 int main(int argc, char *argv[])
 {
+	//Check the CMD Arguments
 	if (argc < 4)
 	{
 		printf("Not enough Arguments!");
@@ -28,6 +29,7 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
+	//Convert char[] factor to double
 	char *end;
 	double alpha = strtod(argv[3], &end);
 	;
@@ -54,6 +56,7 @@ int main(int argc, char *argv[])
 	assert(error == BITMAP_ERROR_SUCCESS); //!If False displays error message and aborts program
 	printf("Read Bitmap successfully!");
 
+	//Image gets cropped to the resolution of the smaller input image
 	width_output = min(width_1, width_2);
 	height_output = min(height_1, height_2);
 	pixels_output = (bitmap_pixel_rgb_t *)malloc(height_output * width_output * sizeof(bitmap_pixel_rgb_t));
@@ -71,14 +74,7 @@ int main(int argc, char *argv[])
 			pixel_output->r = round(alpha * pixel_1->r + (1 - alpha) * pixel_2->r);
 			pixel_output->g = round(alpha * pixel_1->g + (1 - alpha) * pixel_2->g);
 			pixel_output->b = round(alpha * pixel_1->b + (1 - alpha) * pixel_2->b);
-			//printf("R: %i | %i | %i \n", pixel_1->r, pixel_2->r, pixel_output->r);
-			//printf("%i | %i \n", pixel_2->r, pixel_output->r);
-
-			if (i + 1 == width_1 || i + 1 == width_2)
-				break;
 		}
-		if (e + 1 == height_1 || e + 1 == height_2)
-			break;
 	}
 
 	//Write bitmap pixels:
