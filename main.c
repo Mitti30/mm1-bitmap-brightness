@@ -22,12 +22,12 @@ void manipulate(bitmap_pixel_hsv_t *pixels, int count, int level)
 	{
 		bitmap_pixel_hsv_t *pixel = &pixels[i];
 		pixel->v = max(min(pixel->v + (255 / 100 * level), 255), 0);
-		printf("%i \n", pixel->v);
 	}
 }
 
 int main(int argc, char *argv[])
 {
+	//Check CMD Arguments
 	if (argc < 4)
 	{
 		printf("Not enough Arguments!");
@@ -39,8 +39,9 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
+	//Convert Level Char[] to int
 	char *end;
-	int level = (int)strtol(argv[3], end, 10);
+	int level = (int)strtol(argv[3], &end, 10);
 	if (level < -100 || level > 100)
 	{
 		printf("Level value is not between +100 and -100!");
@@ -54,8 +55,9 @@ int main(int argc, char *argv[])
 
 	char *outputName = (char *)malloc(strlen(argv[1]) + 5 * sizeof(char));
 
+	//Produce output name
 	strncpy(outputName, argv[1], strlen(argv[1]) - 4);
-	strcat(outputName, "_b");
+	strcat(outputName, "_b_");
 	strcat(outputName, argv[3]);
 	strcat(outputName, ".bmp");
 
